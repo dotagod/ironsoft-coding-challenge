@@ -6,85 +6,85 @@ namespace OldPhonePad
 {
     public class PhoneKeypad
     {
+        private const char SPACE = ' ';
+        private const char BACKSPACE = '*';
+        private const char SEND = '#';
+
+        private static readonly Dictionary<char, string> KeyMap = new Dictionary<char, string>
+        {
+            {'2', "ABC"},
+            {'3', "DEF"},
+            {'4', "GHI"},
+            {'5', "JKL"},
+            {'6', "MNO"},
+            {'7', "PQRS"},
+            {'8', "TUV"},
+            {'9', "WXYZ"}
+        };
+
         public static string OldPhonePad(string input)
         {
-            Dictionary<char, string> map = new Dictionary<char, string>
+            if (string.IsNullOrEmpty(input))
+                return string.Empty;
+
+            var result = new StringBuilder();
+            char? lastDigit = null;
+            int consecutivePresses = 0;
+
+            foreach (char c in input)
             {
-                {'2', "ABC"},
-                {'3', "DEF"},
-                {'4', "GHI"},
-                {'5', "JKL"},
-                {'6', "MNO"},
-                {'7', "PQRS"},
-                {'8', "TUV"},
-                {'9', "WXYZ"}
-            };
-
-            string result = "";
-            string currentSequence = "";
-            int position = 0;
-
-            while (position < input.Length)
-            {
-                char currentChar = input[position];
-                position++;
-
-                switch (currentChar)
+                switch (c)
                 {
-                    case ' ':
-                        result = ProcessCurrentSequence(map, currentSequence, result);
-                        currentSequence = "";
+                    case SPACE:
+                        AppendCurrentCharacter(result, lastDigit, consecutivePresses);
+                        lastDigit = null;
+                        consecutivePresses = 0;
                         break;
 
-                    case '*':
-                        result = ProcessCurrentSequence(map, currentSequence, result);
-                        currentSequence = "";
+                    case BACKSPACE:
+                        lastDigit = null;
+                        consecutivePresses = 0;
                         
                         if (result.Length > 0)
-                        {
-                            result = result.Substring(0, result.Length - 1);
-                        }
+                            result.Length--;
                         break;
 
-                    case '#':
-                        result = ProcessCurrentSequence(map, currentSequence, result);
-                        currentSequence = "";
+                    case SEND:
+                        AppendCurrentCharacter(result, lastDigit, consecutivePresses);
+                        lastDigit = null;
+                        consecutivePresses = 0;
                         break;
 
                     default:
-                        if (map.ContainsKey(currentChar))
+                        if (!KeyMap.ContainsKey(c))
+                            continue;
+
+                        if (lastDigit != c)
                         {
-                            if (currentSequence == "" || currentSequence[0] == currentChar)
-                            {
-                                currentSequence += currentChar;
-                            }
-                            else
-                            {
-                                result = ProcessCurrentSequence(map, currentSequence, result);
-                                currentSequence = currentChar.ToString();
-                            }
+                            AppendCurrentCharacter(result, lastDigit, consecutivePresses);
+                            lastDigit = c;
+                            consecutivePresses = 1;
+                        }
+                        else
+                        {
+                            consecutivePresses++;
                         }
                         break;
                 }
             }
 
-            result = ProcessCurrentSequence(map, currentSequence, result);
-            return result;
+            AppendCurrentCharacter(result, lastDigit, consecutivePresses);
+            return result.ToString();
         }
 
-        private static string ProcessCurrentSequence(Dictionary<char, string> map, string sequence, string result)
+        private static void AppendCurrentCharacter(StringBuilder result, char? digit, int presses)
         {
-            if (sequence.Length > 0 && map.ContainsKey(sequence[0]))
-            {
-                string letters = map[sequence[0]];
-                int index = (sequence.Length - 1) % letters.Length;
-                
-                if (index < letters.Length)
-                {
-                    result += letters[index];
-                }
-            }
-            return result;
+            if (!digit.HasValue || presses == 0)
+                return;
+
+            string letters = KeyMap[digit.Value];
+            int index = (presses - 1) % letters.Length;
+            result.Append(letters[index]);
         }
     }
 }
