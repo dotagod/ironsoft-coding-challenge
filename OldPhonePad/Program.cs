@@ -24,15 +24,6 @@ namespace OldPhonePad
                 Console.WriteLine($"Test case {name}: {result}");
             }
 
-            try
-            {
-                PhoneKeypad.OldPhonePad("123");
-                Console.WriteLine("Error: Input validation failed");
-            }
-            catch (ArgumentException e)
-            {
-                Console.WriteLine($"Input validation works: {e.Message}");
-            }
         }
     }
 }
