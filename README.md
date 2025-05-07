@@ -27,13 +27,13 @@ On an old phone keypad:
 The solution is implemented in C# using .NET. The main functionality is provided by the `PhoneKeypad` class, which includes:
 
 - `OldPhonePad(string input)`: Converts a string of keypad presses to text
-- `CountConsecutivePresses(string input, int startIndex)`: Helper method to count consecutive presses of the same button
+- `AppendCurrentCharacter(StringBuilder result, char? digit, int presses)`: Helper method to append the correct letter based on the digit and number of presses
 
 ### Key Features
 
-- **Input Validation**: Ensures input ends with '#' to indicate end of message
-- **Backspace Support**: Handles '*' as backspace to remove the last character
-- **Pause Handling**: Processes spaces as pauses for typing multiple characters from the same key
+- **Efficient State Tracking**: Uses nullable char to track the last digit pressed and count of consecutive presses
+- **Backspace Support**: Handles '*' as backspace to remove the last character from the result
+- **Pause Handling**: Processes spaces to finalize the current character and reset the state
 - **Cycling Letters**: Correctly cycles through letters when a key is pressed multiple times
 
 ## Project Structure
@@ -109,12 +109,13 @@ To run the tests, you'll need MSTest or another compatible testing framework.
 ### Time Complexity
 
 - **O(n)** where n is the length of the input string
-- Each character is processed exactly once
+- Each character is processed exactly once in a single pass
 
 ### Space Complexity
 
 - **O(m)** where m is the length of the output string
 - Uses a StringBuilder for efficient string building
+- Minimal additional memory usage with simple state tracking variables
 
 ## Requirements
 
